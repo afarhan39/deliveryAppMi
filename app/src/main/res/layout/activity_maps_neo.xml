@@ -11,7 +11,7 @@ tools:context=".MapsActivity">
         android:background="@android:color/transparent"
         android:gravity="bottom"
         sothree:umanoDragView="@+id/viewDragView"
-        sothree:umanoPanelHeight="70dp"
+        sothree:umanoPanelHeight="50dp"
         sothree:umanoShadowHeight="0dp">
 
  <FrameLayout

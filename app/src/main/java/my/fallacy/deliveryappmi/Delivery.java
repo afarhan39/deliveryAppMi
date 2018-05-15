@@ -1,9 +1,16 @@
 package my.fallacy.deliveryappmi;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Delivery {
 
+    @SerializedName("description")
     private String description;
+
+    @SerializedName("imageUrl")
     private String imageUrl;
+
+    @SerializedName("location")
     private Location location;
 
     public Delivery(String description, String imageUrl, Location location) {

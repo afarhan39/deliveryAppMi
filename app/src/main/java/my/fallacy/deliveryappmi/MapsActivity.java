@@ -3,8 +3,11 @@ package my.fallacy.deliveryappmi;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,11 +21,18 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DeliveryAdapter.DeliveryAdapterListener {
 
     private GoogleMap mMap;
-    private ArrayList<Delivery> deliveries = new ArrayList<>();
+    private DeliveryAdapter deliveryAdapter;
+
+    private MIHelper miHelper;
+    private CompositeDisposable compositeDisposable;
 
     @Nullable
     @BindView(R.id.sliding_layout)
@@ -35,6 +45,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Nullable
     @BindView(R.id.tv1)
     protected TextView tv1;
+
+    @BindView(R.id.rvDelivery)
+    protected RecyclerView rvDelivery;
 
 
 
@@ -63,35 +76,96 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        getDeliveries();
-        addMarkers();
+        //getDeliveries();
+        callApi();
+        initSlideLayout();
     }
 
-    private void getDeliveries() {
-        Location location1 = new Location(1.3520156, 103.9638572, "Changi");
-        Delivery delivery1 = new Delivery("Deliver documents to Tracy",
-                "https://s3-ap-southeast-1.amazonaws.com/mibackpack/map-marker-2-128.png",
-                location1);
+    private void callApi() {
+        miHelper = new MIHelper(this);
+        compositeDisposable = new CompositeDisposable();
 
-        Location location2 = new Location(1.301805, 103.8356084, "Changi");
-        Delivery delivery2 = new Delivery("Deliver parcel to Vea",
-                "https://s3-ap-southeast-1.amazonaws.com/mibackpack/map-marker-2-128.png",
-                location2);
 
-        deliveries.add(delivery1);
-        deliveries.add(delivery2);
+        DisposableObserver<ArrayList<Delivery>> disposableObserver = new DisposableObserver<ArrayList<Delivery>>() {
+            @Override
+            public void onNext(ArrayList<Delivery> deliveries) {
+                if (!deliveries.isEmpty()) {
+                    addMarkers(deliveries);
+                }
+                else
+                    Toast.makeText(MapsActivity.this, "Empty data", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                // Clear disposable container
+                compositeDisposable.clear();
+            }
+
+            @Override
+            public void onComplete() {
+                // Clear disposable container
+                compositeDisposable.clear();
+            }
+        };
+        miHelper.getDeliveries().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(disposableObserver);
+        compositeDisposable.add(disposableObserver);
     }
 
-    private void addMarkers() {
+    private void addMarkers(ArrayList<Delivery> deliveries) {
         for (Delivery delivery : deliveries) {
             LatLng latLng = new LatLng(delivery.getLocation().getLat(), delivery.getLocation().getLng());
             mMap.addMarker(new MarkerOptions().position(latLng).title(delivery.getDescription()));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
             mMap.animateCamera(CameraUpdateFactory.zoomIn());
             mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+        }
 
-            if (tv1 != null)
-            tv1.setText(delivery.getDescription());
+        setupAdapter(deliveries);
+    }
+
+    private void initSlideLayout() {
+        if (slidingUpPanelLayout != null) {
+            slidingUpPanelLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+                @Override
+                public void onPanelSlide(View panel, float slideOffset) { }
+
+                @Override
+                public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                    switch (newState) {
+                        case COLLAPSED:
+                            assert tv1 != null;
+                            tv1.setText("Show List");
+                            break;
+                        case EXPANDED:
+                            assert tv1 != null;
+                            tv1.setText("List of Deliveries");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        }
+    }
+
+    private void setupAdapter(ArrayList<Delivery> deliveries) {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvDelivery.setLayoutManager(linearLayoutManager);
+        deliveryAdapter = new DeliveryAdapter(this, deliveries, this);
+        rvDelivery.setAdapter(deliveryAdapter);
+    }
+
+
+    @Override
+    public void onCopyRightClicked(int position, Delivery delivery) {
+        //todo close slider and zoom to location
+        Toast.makeText(this, delivery.getLocation().getAddress(), Toast.LENGTH_SHORT).show();
+
+        if (slidingUpPanelLayout != null) {
+            if (slidingUpPanelLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.EXPANDED)) {
+                slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
         }
     }
 }

@@ -21,25 +21,28 @@
         <View
             android:id="@+id/viewDragView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:background="@color/colorPrimaryDark"/>
+            android:layout_height="50dp"/>
 
         <View
             android:id="@+id/viewDummyForTutorial"
             android:layout_width="100dp"
             android:layout_height="50dp"
-            android:clickable="false"
-            android:background="@color/colorAccent"/>
+            android:clickable="false"/>
 
         <TextView
             android:id="@+id/tv1"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:text="-"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:gravity="center"
-            android:textColor="@android:color/white"
+            android:layout_height="50dp"
+            android:text="Show List"
+            android:padding="12dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvDelivery"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="50dp"/>
 
     </FrameLayout>
 
