@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:background="@android:color/transparent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <!--<WebView
+            android:id="@+id/wvChatbot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent" />-->
+
+        <View
+            android:id="@+id/viewDragView"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@color/colorPrimaryDark"/>
+
+        <View
+            android:id="@+id/viewDummyForTutorial"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:clickable="false"
+            android:background="@color/colorAccent"/>
+
+        <TextView
+            android:id="@+id/tv1"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:text="-"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            />
+
+    </FrameLayout>
+
+</LinearLayout>
