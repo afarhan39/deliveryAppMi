@@ -2,9 +2,13 @@ package my.fallacy.deliveryappmi;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Delivery {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class Delivery extends RealmObject {
 
     @SerializedName("description")
+    @PrimaryKey
     private String description;
 
     @SerializedName("imageUrl")
@@ -12,6 +16,9 @@ public class Delivery {
 
     @SerializedName("location")
     private Location location;
+
+    public Delivery() {
+    }
 
     public Delivery(String description, String imageUrl, Location location) {
         this.description = description;

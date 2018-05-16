@@ -2,7 +2,9 @@ package my.fallacy.deliveryappmi;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Location {
+import io.realm.RealmObject;
+
+public class Location extends RealmObject {
 
     @SerializedName("lat")
     private double lat;
@@ -12,6 +14,9 @@ public class Location {
 
     @SerializedName("address")
     private String address;
+
+    public Location() {
+    }
 
     public Location(double lat, double lng, String address) {
         this.lat = lat;

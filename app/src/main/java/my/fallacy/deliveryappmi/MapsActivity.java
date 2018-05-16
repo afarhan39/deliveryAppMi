@@ -21,15 +21,19 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DeliveryAdapter.DeliveryAdapterListener {
 
     private GoogleMap mMap;
     private DeliveryAdapter deliveryAdapter;
+    private Realm realm;
 
     private MIHelper miHelper;
     private CompositeDisposable compositeDisposable;
@@ -49,8 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @BindView(R.id.rvDelivery)
     protected RecyclerView rvDelivery;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +64,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    @OnClick(R.id.btnRefresh)
+    void onRefresh() {
+        callApi();
+    }
 
     /**
      * Manipulates the map once available.
@@ -76,9 +82,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //getDeliveries();
+
+        initRealm();
         callApi();
         initSlideLayout();
+    }
+
+    private void initRealm() {
+        Realm.init(this);
+        realm = Realm.getDefaultInstance();
     }
 
     private void callApi() {
@@ -90,6 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onNext(ArrayList<Delivery> deliveries) {
                 if (!deliveries.isEmpty()) {
+                    writeToRealm(deliveries);
                     addMarkers(deliveries);
                 }
                 else
@@ -99,6 +112,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onError(Throwable e) {
                 // Clear disposable container
+                Toast.makeText(MapsActivity.this, "Something went wrong. Reload from db", Toast.LENGTH_SHORT).show();
+                readFromRealm();
                 compositeDisposable.clear();
             }
 
@@ -110,6 +125,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
         miHelper.getDeliveries().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(disposableObserver);
         compositeDisposable.add(disposableObserver);
+    }
+
+    private void writeToRealm(final ArrayList<Delivery> deliveries) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                bgRealm.insertOrUpdate(deliveries);
+            }
+        });
+    }
+
+    private void readFromRealm() {
+        //fetching the data
+        RealmResults<Delivery> results = realm.where(Delivery.class).findAllAsync();
+        results.load();
+
+        ArrayList<Delivery> deliveries = new ArrayList<>();
+        deliveries.addAll(realm.copyFromRealm(results));
+
+        if (!deliveries.isEmpty()) {
+            addMarkers(deliveries);
+        }
     }
 
     private void addMarkers(ArrayList<Delivery> deliveries) {
