@@ -28,6 +28,8 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import my.fallacy.deliveryappmi.helper.MIHelper;
+import my.fallacy.deliveryappmi.model.Delivery;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DeliveryAdapter.DeliveryAdapterListener {
 
@@ -204,5 +206,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             }
         }
+
+        LatLng latLng = new LatLng(delivery.getLocation().getLat(), delivery.getLocation().getLng());
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
     }
 }

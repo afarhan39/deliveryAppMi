@@ -5,20 +5,27 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import my.fallacy.deliveryappmi.model.Delivery;
 
 public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Holder> {
 
-    private ArrayList<Delivery> deliveries;
+    private Context context;
     private LayoutInflater inflater;
+    private ArrayList<Delivery> deliveries;
     private DeliveryAdapterListener deliveryAdapterListener;
 
     public DeliveryAdapter(Context context, ArrayList<Delivery> deliveries, DeliveryAdapterListener deliveryAdapterListener) {
+        this.context = context;
         inflater = LayoutInflater.from(context);
         this.deliveries = deliveries;
         this.deliveryAdapterListener = deliveryAdapterListener;
@@ -31,22 +38,30 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Holder
 
     @Override
     public void onBindViewHolder(final Holder holder, int position) {
-        holder.tvName.setText("");
-        holder.tvUrl.setText("");
+        holder.tvDescription.setText("");
+        holder.tvAddress.setText("");
 
         Delivery delivery = getItem(position);
 
         if (delivery != null) {
-            holder.tvName.setText(delivery.getDescription());
-            holder.tvUrl.setText(delivery.getLocation().getAddress());
+            holder.tvDescription.setText(delivery.getDescription());
+            holder.tvAddress.setText(delivery.getLocation().getAddress());
+            Glide.with(context)
+                    .load(delivery.getImageUrl())
+//                .transition(withCrossFade())
+                    .apply(RequestOptions.placeholderOf(R.mipmap.ic_launcher_round))
+                    .apply(RequestOptions.errorOf(R.mipmap.ic_launcher_round))
+                    .into(holder.ivDelivery);
         }
     }
 
     class Holder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tvName)
-        TextView tvName;
-        @BindView(R.id.tvUrl)
-        TextView tvUrl;
+        @BindView(R.id.tvDescription)
+        TextView tvDescription;
+        @BindView(R.id.tvAddress)
+        TextView tvAddress;
+        @BindView(R.id.ivDelivery)
+        ImageView ivDelivery;
 
         Holder(View view) {
             super(view);

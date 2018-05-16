@@ -1,9 +1,9 @@
-package my.fallacy.deliveryappmi;
+package my.fallacy.deliveryappmi.helper;
 
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
-import okhttp3.ResponseBody;
+import my.fallacy.deliveryappmi.model.Delivery;
 import retrofit2.http.GET;
 
 public interface MIApi {

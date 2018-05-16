@@ -1,4 +1,4 @@
-package my.fallacy.deliveryappmi;
+package my.fallacy.deliveryappmi.model;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -1,4 +1,4 @@
-package my.fallacy.deliveryappmi;
+package my.fallacy.deliveryappmi.helper;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
+import my.fallacy.deliveryappmi.BuildConfig;
+import my.fallacy.deliveryappmi.model.Delivery;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -64,11 +66,6 @@ public class MIHelper {
 
     public class NoInternetException extends IOException {
         public NoInternetException() {
-        }
-    }
-
-    public class TokenExpiredException extends IOException {
-        public TokenExpiredException() {
         }
     }
 }
